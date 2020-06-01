@@ -10,8 +10,8 @@ module Grupoab
     def self.all
       [
         {
-          email_id: 'website',
-          name: 'Website'
+          email_id: 'leadsdomkt',
+          name: 'Leads do Marketing'
         },
       ]
     end
@@ -20,11 +20,22 @@ module Grupoab
   class F1SalesCustom::Email::Parser
     def parse
 
-      parsed_email = @email.body.colons_to_hash(/(Telefone|Nome|modelo|Newsletter|marca|Mensagem|E-mail|Deseja contato).*?\n\n/, false) unless parsed_email
+      if @email.subject.downcase.include?('facebook')
+        parse_facebook
+      else
+        parse_website
+      end
+
+    end
+
+    private
+
+    def parse_website
+      parsed_email = @email.body.colons_to_hash(/(Telefone|Nome|modelo|Newsletter|marca|Mensagem|O link para o veículo é|E-mail|Deseja contato|Data).*?/, false) unless parsed_email
 
       {
         source: {
-          name: F1SalesCustom::Email::Source.all[0][:name],
+          name: 'Website',
         },
         customer: {
           name: parsed_email['nome'],
@@ -33,7 +44,26 @@ module Grupoab
         },
         product: parsed_email['modelo'],
         message: parsed_email['mensagem'],
-        description: "Deseja contato por #{parsed_email['deseja_contato']}",
+        description: "Deseja contato #{(parsed_email['deseja_contato'] || '').gsub("\n", ' ')}",
+        attachments: [(parsed_email['o_link_para_o_veculo_'] || '').gsub(":\n", '')]
+      }
+
+    end
+
+    def parse_facebook
+      parsed_email = @email.body.colons_to_hash(/(Telefone|Nome|Email|Pretende comprar em|Motocicleta de interesse|Plataforma).*?:/, false) unless parsed_email
+
+      {
+        source: {
+          name: 'Facebook / Instagram (Por email)',
+        },
+        customer: {
+          name: parsed_email['nome'],
+          phone: (parsed_email['telefone'] || '').tr('^0-9', '')[2..-1],
+          email: parsed_email['email'],
+        },
+        product: parsed_email['motocicleta_de_interesse'],
+        message: "Pretende comprar em: #{parsed_email['pretende_comprar_em']}",
       }
     end
   end
