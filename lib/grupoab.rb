@@ -35,6 +35,8 @@ module Grupoab
     private
 
     def parse_website
+
+      return if @email.subject.include?('Mercado Livre Ofertas')
       parsed_email = @email.body.colons_to_hash(/(Telefone|Nome|modelo|Newsletter|marca|Mensagem|O link para o veículo é|E-mail|Deseja contato|Data).*?/, false) unless parsed_email
 
       {
