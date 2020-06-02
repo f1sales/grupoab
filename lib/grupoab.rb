@@ -15,6 +15,10 @@ module Grupoab
         },
       ]
     end
+
+    def self.support?(_email_id)
+      true
+    end
   end
 
   class F1SalesCustom::Email::Parser
