@@ -22,7 +22,7 @@ GIT
 PATH
   remote: .
   specs:
-    grupoab (0.2.1)
+    grupoab (0.2.2)
 
 GEM
   remote: https://rubygems.org/

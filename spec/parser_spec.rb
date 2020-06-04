@@ -4,6 +4,22 @@ require "f1sales_custom/source"
 
 RSpec.describe F1SalesCustom::Email::Parser do
 
+  context 'when is not a lead' do
+    let(:email){
+      email = OpenStruct.new
+      email.to = [email: 'leadsdomkt@abhdrj.f1sales.net'],
+      email.subject = " "
+      email.body = " "
+
+      email
+    }
+
+    it 'raise an error' do
+      expect { described_class.new(email).parse }.to raise_error('Not able to parse lead  ')
+    end
+
+  end
+
   context 'when it has different model' do
     let(:email){
       email = OpenStruct.new

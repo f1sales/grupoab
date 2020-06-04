@@ -39,6 +39,13 @@ module Grupoab
       return if @email.subject.include?('Mercado Livre Ofertas')
       parsed_email = @email.body.colons_to_hash(/(Telefone|Nome|modelo|versao|Newsletter|marca|Mensagem|O link para o veículo é|E-mail|Deseja contato|Data).*?/, false) unless parsed_email
 
+      email = parsed_email['email']
+      phone = parsed_email['telefone']
+
+      unless email || phone
+        raise "Not able to parse lead #{@email.body}"
+      end
+
       {
         source: {
           name: 'Website',
@@ -48,7 +55,7 @@ module Grupoab
           phone: (parsed_email['telefone'] || '').tr('^0-9', ''),
           email: parsed_email['email'],
         },
-        product: parsed_email['modelo'],
+        product: (parsed_email['modelo'] || ''),
         message: parsed_email['mensagem'],
         description: "Deseja contato #{(parsed_email['deseja_contato'] || '').gsub("\n", ' ')}",
         attachments: [(parsed_email['o_link_para_o_veculo_'] || '').gsub(":\n", '')]
