@@ -26,6 +26,8 @@ module Grupoab
 
       if @email.subject.downcase.include?('facebook')
         parse_facebook
+      elsif @email.from[:email].include?('moto.com.br')
+        parse_motocom
       else
         parse_website
       end
@@ -33,6 +35,30 @@ module Grupoab
     end
 
     private
+
+
+    def parse_motocom
+      raise 'Not an email lead' unless @email.subject.downcase.include?('proposta')
+
+      parsed_email = @email.body.colons_to_hash(/(Telefone|E-mail do Interessado|Responder agora|Dados do interessado|Nome|Proposta).*?:/, false)
+
+      product = @email.subject.split(" - ")[1..2].join(' - ')
+      description = @email.body.split("\n\n")[2].split(' - ')[2..3].join(' - ')
+
+      {
+        source: {
+          name: 'Moto.com.br',
+        },
+        customer: {
+          name: parsed_email['nome'],
+          phone: (parsed_email['telefone'] || '').tr('^0-9', ''),
+          email: parsed_email['email_do_interessado'],
+        },
+        product: product,
+        description: description,
+        message: parsed_email["proposta"]
+      }
+    end
 
     def parse_website
 
