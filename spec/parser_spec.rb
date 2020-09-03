@@ -4,6 +4,44 @@ require "f1sales_custom/source"
 
 RSpec.describe F1SalesCustom::Email::Parser do
 
+  context 'when is from Mercado Livre' do
+    let(:email){
+      email = OpenStruct.new
+      email.to = [email: 'leadsdomkt@abhdrj.f1sales.net']
+      email.from = { email: 'nao-responder@mercadolivre.com' }
+      email.subject = 'Fizeram uma pergunta no anuncio Harley Davidson Road Glide!'
+      email.body = "Olá, Ricardo Vinícius, fizeram uma pergunta para você \n    \n     \n    \n    \n   (https://moto.mercadolivre.com.br/MLB-1418873117-harley-davidson-road-glide-_JM) \n Harley Davidson Road Glide (https://moto.mercadolivre.com.br/MLB-1418873117-harley-davidson-road-glide-_JM) \n    \n 75000 a vista??? \n  \nEstes sãos os dados do interessado: \n  \nAngelo Butrus \n  angelobutrus@hotmail.com (mailto:angelobutrus@hotmail.com) \n  \nTelefone: 62-981060717 \n    \n    \n  Responder (https://questions.mercadolivre.com.br/seller?item=MLB1418873117&confirm=true&_consistent=true)  \n    \n    \n    \n  \nPrecisa de ajuda? Entre em contato conosco (https://www.mercadolivre.com.br/ajuda) \nCompre e venda do seu celular!   \n Te enviamos este e-mail para ml.hd.bh@grupoab.com.br porque você optou por receber informações. (mailto:ml.hd.bh@grupoab.com.br) \nAdministrar preferências de e-mails. (https://myaccount.mercadolivre.com.br/preferences/emails) \nVeja como cuidamos da sua Privacidade e confira os (https://www.mercadolivre.com.br/privacidade) Termos e condições do Mercado Livre. (https://www.mercadolivre.com.br/ajuda/991)"
+
+      email
+    }
+
+    let(:parsed_email) { described_class.new(email).parse }
+
+    it 'contains Mercado Livre Email as source name' do
+      expect(parsed_email[:source][:name]).to eq('Mercado Livre Por Email')
+    end
+
+    it 'contains name' do
+      expect(parsed_email[:customer][:name]).to eq('Angelo Butrus')
+    end
+
+    it 'contains phone' do
+      expect(parsed_email[:customer][:phone]).to eq('62981060717')
+    end
+
+    it 'contains product' do
+      expect(parsed_email[:product]).to eq('Harley Davidson Road Glide')
+    end
+
+    it 'contains email' do
+      expect(parsed_email[:customer][:email]).to eq('angelobutrus@hotmail.com')
+    end
+
+    it 'contains message' do
+      expect(parsed_email[:message]).to eq('75000 a vista???')
+    end
+  end
+
   context 'when is from Moto.com' do
     let(:email){
       email = OpenStruct.new

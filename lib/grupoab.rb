@@ -26,6 +26,8 @@ module Grupoab
 
       if @email.subject.downcase.include?('facebook')
         parse_facebook
+      elsif @email.from[:email].include?('mercadolivre')
+        parse_mercadolivre
       elsif @email.from[:email].include?('moto.com.br')
         parse_motocom
       else
@@ -36,6 +38,29 @@ module Grupoab
 
     private
 
+    def parse_mercadolivre
+      raise 'Not an email lead' unless @email.subject.downcase.include?('fizeram uma pergunta no anuncio')
+      parsed_email = @email.body.colons_to_hash(/(Estes sãos os dados do interessado|fizeram uma pergunta para você|Telefone|Responder).*?/, false)
+      name, email = parsed_email['estes_sos_os_dados_do_interessado'].split("\n").map(&:strip).reject(&:empty?).select { |data| data.size > 1}
+      email = email.split(" ").first
+      product = parsed_email['fizeram_uma_pergunta_para_voc'].split("\n")[1].strip
+      product = product.split(" ")[0..-2].join(' ')
+
+
+      {
+        source: {
+          name: 'Mercado Livre Por Email',
+        },
+        customer: {
+          name: name,
+          phone: parsed_email['telefone'].tr('^0-9', ''),
+          email: email,
+        },
+        product: product,
+        description: '',
+        message: parsed_email['fizeram_uma_pergunta_para_voc'].split("\n").last.strip
+      }
+    end
 
     def parse_motocom
       raise 'Not an email lead' unless @email.subject.downcase.include?('proposta')
