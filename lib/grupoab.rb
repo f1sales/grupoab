@@ -12,7 +12,7 @@ module Grupoab
         {
           email_id: 'leadsdomkt',
           name: 'Leads do Marketing'
-        },
+        }
       ]
     end
 
@@ -24,22 +24,35 @@ module Grupoab
   class F1SalesCustom::Email::Parser
     def parse
 
-      if @email.subject.downcase.include?('facebook')
-        parse_facebook
-      elsif @email.from[:email].include?('mercadolivre')
-        parse_mercadolivre
-      elsif @email.from[:email].include?('moto.com.br')
-        parse_motocom
-      else
-        parse_website
-      end
+      brand_store = extract_brand_store
 
+      if @email.subject.downcase.include?('facebook')
+        parse_facebook(brand_store)
+      elsif @email.from[:email].include?('mercadolivre')
+        parse_mercadolivre(brand_store)
+      elsif @email.from[:email].include?('moto.com.br')
+        parse_motocom(brand_store)
+      else
+        parse_website(brand_store)
+      end
     end
 
     private
 
-    def parse_mercadolivre
+    def extract_brand_store
+      default_email_to = F1SalesCustom::Email::Source.all[0][:email_id]
+      destinatary = @email.to.map { |e| e[:email] }.first
+      return '' if destinatary.include?(default_email_to)
+
+      brand, store_name = destinatary.split('@').first.split('.').map(&:capitalize)
+      return '' unless brand && store_name
+
+      "#{brand} - #{store_name} - "
+    end
+
+    def parse_mercadolivre(brand_store)
       raise 'Not an email lead' unless @email.subject.downcase.include?('fizeram uma pergunta no anuncio')
+
       parsed_email = @email.body.colons_to_hash(/(Estes sãos os dados do interessado|fizeram uma pergunta para você|Telefone|Responder).*?/, false)
       name, email = parsed_email['estes_sos_os_dados_do_interessado'].split("\n").map(&:strip).reject(&:empty?).select { |data| data.size > 1}
       email = email.split(" ").first
@@ -49,7 +62,7 @@ module Grupoab
 
       {
         source: {
-          name: 'Mercado Livre Por Email',
+          name: "#{brand_store}Mercado Livre Por Email",
         },
         customer: {
           name: name,
@@ -62,7 +75,7 @@ module Grupoab
       }
     end
 
-    def parse_motocom
+    def parse_motocom(brand_store)
       raise 'Not an email lead' unless @email.subject.downcase.include?('proposta')
 
       parsed_email = @email.body.colons_to_hash(/(Telefone|E-mail do Interessado|Responder agora|Dados do interessado|Nome|Proposta).*?:/, false)
@@ -72,7 +85,7 @@ module Grupoab
 
       {
         source: {
-          name: 'Moto.com.br',
+          name: "#{brand_store}Moto.com.br"
         },
         customer: {
           name: parsed_email['nome'],
@@ -85,21 +98,19 @@ module Grupoab
       }
     end
 
-    def parse_website
-
+    def parse_website(brand_store)
       return if @email.subject.include?('Mercado Livre Ofertas')
+
       parsed_email = @email.body.colons_to_hash(/(Telefone|Nome|modelo|versao|Newsletter|marca|Mensagem|O link para o veículo é|E-mail|Deseja contato|Data).*?/, false) unless parsed_email
 
       email = parsed_email['email']
       phone = parsed_email['telefone']
 
-      unless email || phone
-        raise "Not able to parse lead #{@email.body}"
-      end
+      raise "Not able to parse lead #{@email.body}" unless email || phone
 
       {
         source: {
-          name: 'Website',
+          name: "#{brand_store}Website"
         },
         customer: {
           name: parsed_email['nome'],
@@ -114,12 +125,12 @@ module Grupoab
 
     end
 
-    def parse_facebook
+    def parse_facebook(brand_store)
       parsed_email = @email.body.colons_to_hash(/(Telefone|Nome|Email|Pretende comprar em|Motocicleta de interesse|Plataforma).*?:/, false) unless parsed_email
 
       {
         source: {
-          name: 'Facebook / Instagram (Por email)',
+          name: "#{brand_store}Facebook / Instagram (Por email)"
         },
         customer: {
           name: parsed_email['nome'],
@@ -127,7 +138,7 @@ module Grupoab
           email: parsed_email['email'],
         },
         product: parsed_email['motocicleta_de_interesse'],
-        message: "Pretende comprar em: #{parsed_email['pretende_comprar_em']}",
+        message: "Pretende comprar em: #{parsed_email['pretende_comprar_em']}"
       }
     end
   end
