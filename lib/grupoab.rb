@@ -30,6 +30,21 @@ module Grupoab
         parse_facebook(brand_store)
       elsif @email.from[:email].include?('mercadolivre')
         parse_mercadolivre(brand_store)
+      elsif @email.from[:email].include?('olx')
+        parser = OLXParser.new(@email)
+        lead_payload = parser.parse
+        lead_payload[:source][:name] = "#{brand_store}#{lead_payload[:source][:name]}"
+        lead_payload
+      elsif @email.from[:email].include?('icarros')
+        parser = ICarrosParser.new(@email)
+        lead_payload = parser.parse
+        lead_payload[:source][:name] = "#{brand_store}#{lead_payload[:source][:name]}"
+        lead_payload
+      elsif @email.from[:email].include?('mobiauto')
+        parser = MobiautoParser.new(@email)
+        lead_payload = parser.parse
+        lead_payload[:source][:name] = "#{brand_store}#{lead_payload[:source][:name]}"
+        lead_payload
       elsif @email.from[:email].include?('moto.com.br')
         parse_motocom(brand_store)
       else
