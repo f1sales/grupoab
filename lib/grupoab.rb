@@ -124,6 +124,8 @@ module Grupoab
 
       raise "Not able to parse lead #{@email.body}" unless email || phone
 
+      attachments = URI.extract(@email.body, 'https') || []
+
       {
         source: {
           name: brand_store == 'Website - ' ? 'Website' : "#{brand_store}Website"
@@ -135,8 +137,8 @@ module Grupoab
         },
         product: (parsed_email['modelo'] || ''),
         message: parsed_email['mensagem'],
-        description: "Deseja contato #{(parsed_email['deseja_contato'] || '').gsub("\n", ' ')}",
-        attachments: [(parsed_email['o_link_para_o_veculo_'] || '').gsub(":\n", '')]
+        description: "#{@email.subject} | Deseja contato #{(parsed_email['deseja_contato'] || '').gsub("\n", ' ')}",
+        attachments: attachments,
       }
 
     end

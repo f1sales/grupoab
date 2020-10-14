@@ -272,7 +272,7 @@ RSpec.describe F1SalesCustom::Email::Parser do
       end
 
       it 'contains a description' do
-        expect(parsed_email[:description]).to eq('Deseja contato por telefone')
+        expect(parsed_email[:description]).to eq('Lead: Cliente interessado em veiculo novo | Deseja contato por telefone')
       end
 
       it 'contains a product' do
