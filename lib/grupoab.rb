@@ -59,8 +59,9 @@ module Grupoab
       destinatary = @email.to.map { |e| e[:email] }.first
       return '' if destinatary.include?(default_email_to)
 
-      brand, store_name = destinatary.split('@').first.split('.').map(&:capitalize)
-      return '' unless brand && store_name
+      destinatary_name = destinatary.split('@').first
+      brand, store_name = destinatary_name.split('.').map(&:capitalize)
+      return "#{destinatary_name.capitalize} - " unless brand && store_name
 
       "#{brand} - #{store_name} - "
     end
@@ -125,7 +126,7 @@ module Grupoab
 
       {
         source: {
-          name: "#{brand_store}Website"
+          name: brand_store == 'Website - ' ? 'Website' : "#{brand_store}Website"
         },
         customer: {
           name: parsed_email['nome'],
@@ -153,6 +154,7 @@ module Grupoab
           email: parsed_email['email'],
         },
         product: parsed_email['motocicleta_de_interesse'],
+        description: @email.subject,
         message: "Pretende comprar em: #{parsed_email['pretende_comprar_em']}"
       }
     end

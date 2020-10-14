@@ -191,6 +191,29 @@ RSpec.describe F1SalesCustom::Email::Parser do
   context 'when is the default template' do
 
     context 'when brand is specied' do
+
+      context 'when is VW' do
+        let(:email){
+          email = OpenStruct.new
+          email.to = [email: 'seminovos@grupoab.com.br']
+          email.from = { email: 'dgyleads@gmail.com' }
+          email.subject = 'Lead AB Seminovos - Intermediário | Facebook/Instagram'
+          email.body = "Fat Bob\n\nUm cliente interssado em um veículo enviou os seguintes dados:\n\nO link para o veículo é:\nhttps://www.grupoab.com.br/harley-davidson/bh-harley/novos/fat-bob/\n\nNome\n\nTIAGO JEREMIAS DOS ANJOS\n\nE-mail\n\ntjanjosmed@hotmail.com\n\nTelefone\n\n31-99362-4989\n\nDeseja contato por telefone\n\nMensagem\n\nOlá, gostaria de mais informações e condições para compra.\n\nNewsletter\n\nData\n\n2020-05-21 11:37:12\n\nVeículo escolhido\n\nmodelo\n\nFat Bob\n\nmarca\n\nHarley-Davidson"
+
+          email
+        }
+
+        let(:parsed_email) { described_class.new(email).parse }
+
+        it 'contains lead website a source name' do
+          expect(parsed_email[:source][:name]).to eq('Seminovos - Facebook / Instagram (Por email)')
+        end
+
+        it 'contains a description' do
+          expect(parsed_email[:description]).to eq('Lead AB Seminovos - Intermediário | Facebook/Instagram')
+        end
+      end
+
       context 'when is volvo' do
         let(:email){
           email = OpenStruct.new
