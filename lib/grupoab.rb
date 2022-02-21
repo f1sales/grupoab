@@ -135,12 +135,11 @@ module Grupoab
           phone: (parsed_email['telefone'] || '').tr('^0-9', ''),
           email: parsed_email['email'],
         },
-        product: (parsed_email['modelo'] || ''),
+        product: { name: (parsed_email['modelo'] || '') },
         message: parsed_email['mensagem'],
         description: "#{@email.subject} | Deseja contato #{(parsed_email['deseja_contato'] || '').gsub("\n", ' ')}",
-        attachments: attachments,
+        attachments: attachments
       }
-
     end
 
     def parse_facebook(brand_store)
@@ -155,7 +154,7 @@ module Grupoab
           phone: (parsed_email['telefone'] || '').tr('^0-9', '')[2..-1],
           email: parsed_email['email'],
         },
-        product: parsed_email['motocicleta_de_interesse'],
+        product: { name: parsed_email['motocicleta_de_interesse'] },
         description: @email.subject,
         message: "Pretende comprar em: #{parsed_email['pretende_comprar_em']}"
       }
