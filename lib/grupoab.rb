@@ -85,7 +85,7 @@ module Grupoab
           phone: parsed_email['telefone'].tr('^0-9', ''),
           email: email,
         },
-        product: product,
+        product: { name: product },
         description: '',
         message: parsed_email['fizeram_uma_pergunta_para_voc'].split("\n").last.strip
       }
@@ -108,7 +108,7 @@ module Grupoab
           phone: (parsed_email['telefone'] || '').tr('^0-9', ''),
           email: parsed_email['email_do_interessado'],
         },
-        product: product,
+        product: { name: product },
         description: description,
         message: parsed_email["proposta"]
       }

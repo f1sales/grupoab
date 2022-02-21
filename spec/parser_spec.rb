@@ -30,7 +30,7 @@ RSpec.describe F1SalesCustom::Email::Parser do
     end
 
     it 'contains product' do
-      expect(parsed_email[:product]).to eq('Harley Davidson Road Glide')
+      expect(parsed_email[:product][:name]).to eq('Harley Davidson Road Glide')
     end
 
     it 'contains email' do
@@ -72,7 +72,7 @@ RSpec.describe F1SalesCustom::Email::Parser do
     end
 
     it 'contains product' do
-      expect(parsed_email[:product]).to eq('Fat Boy 107 - 2019')
+      expect(parsed_email[:product][:name]).to eq('Fat Boy 107 - 2019')
     end
 
     it 'contains description' do
@@ -179,7 +179,7 @@ RSpec.describe F1SalesCustom::Email::Parser do
       end
 
       it 'contains product' do
-        expect(parsed_email[:product]).to eq('Fat Bob 114')
+        expect(parsed_email[:product][:name]).to eq('Fat Bob 114')
       end
 
       it 'contains message' do
@@ -276,7 +276,7 @@ RSpec.describe F1SalesCustom::Email::Parser do
       end
 
       it 'contains a product' do
-        expect(parsed_email[:product]).to eq('Fat Bob')
+        expect(parsed_email[:product][:name]).to eq('Fat Bob')
       end
     end
   end
